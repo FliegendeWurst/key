@@ -1,0 +1,14 @@
+macro symbex;
+onAll macro simp-heap;
+onAll macro simp-upd;
+onAll macro split-prop;
+onAll macro simp-upd;
+# onAll macro tryclose;
+onAll rule allLeft formula="\forall int j;
+                         (   lt(j, length(border)) & geq(j, Z(0(#)))
+                          -> \forall int i;
+                               (   lt(i, int::select(heap, border, arr(j))) & geq(i, Z(0(#)))
+                                ->   int::select(heap,
+                                                 pattern,
+                                                 arr(add(add(i, j), mul(int::select(heap, border, arr(j)), Z(neglit(1(#)))))))
+                                   = int::select(heap, pattern, arr(i))))" inst_t="j_1";
