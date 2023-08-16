@@ -2,6 +2,7 @@ package org.key_project.util.java;
 
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +12,7 @@ import java.util.Set;
 import javax.swing.*;
 
 import bibliothek.gui.dock.themes.basic.BasicDockableDisplayer;
+import dorkbox.notify.Notify;
 
 /**
  * Utilities for working with Swing.
@@ -18,6 +20,9 @@ import bibliothek.gui.dock.themes.basic.BasicDockableDisplayer;
  * @author Arne Keller
  */
 public final class SwingUtil {
+    private static boolean notifySendAvailable = false;
+    private static boolean notifySendChecked = false;
+
     private SwingUtil() {
     }
 
@@ -174,6 +179,47 @@ public final class SwingUtil {
         // JMenu hides its entries in the popup menu
         if (component instanceof JMenu && ((JMenu) component).getPopupMenu() != null) {
             setFont(((JMenu) component).getPopupMenu(), font);
+        }
+    }
+
+    /**
+     * Show a desktop notification to the user.
+     *
+     * @param title title of the notification
+     * @param text text of the notification
+     */
+    public static void showNotification(String title, String text) {
+        // Linux: try notify-send first (looks better)
+        if (System.getProperty("os.name").equals("Linux")
+                && (notifySendAvailable || !notifySendChecked)) {
+            if (!notifySendChecked) {
+                notifySendChecked = true;
+                notifySendAvailable = true;
+                try {
+                    new ProcessBuilder(
+                        "notify-send",
+                        "-?").start().waitFor();
+                } catch (IOException | InterruptedException e) {
+                    notifySendAvailable = false;
+                }
+            }
+            if (!notifySendAvailable) {
+                showNotification(title, text);
+            }
+            try {
+                new ProcessBuilder(
+                    "notify-send",
+                    "-a", "KeY", title, text).start().waitFor();
+            } catch (IOException | InterruptedException e) {
+                // since we checked for notify-send previously, this error is unlikely
+                throw new RuntimeException(e);
+            }
+        } else {
+            Notify.create()
+                    .title(title)
+                    .text(text)
+                    .hideAfter(5000)
+                    .showInformation();
         }
     }
 }
