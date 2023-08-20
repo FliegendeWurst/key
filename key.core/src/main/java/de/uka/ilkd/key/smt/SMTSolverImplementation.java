@@ -285,6 +285,9 @@ public final class SMTSolverImplementation implements SMTSolver, Runnable {
 
     private void interruptionOccurred(Throwable e) {
         ReasonOfInterruption reason = getReasonOfInterruption();
+        if (e != null && !(e instanceof InterruptedException)) {
+            LOGGER.error("error ", e);
+        }
         setReasonOfInterruption(ReasonOfInterruption.Exception, e);
         switch (reason) {
         case Exception:

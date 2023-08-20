@@ -2,8 +2,10 @@ package de.uka.ilkd.key.proof.io;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.axiom_abstraction.predicateabstraction.AbstractPredicateAbstractionLattice;
 import de.uka.ilkd.key.logic.Name;
@@ -194,7 +196,7 @@ public class IntermediatePresentationProofFileParser implements IProofFileParser
             BuiltinRuleInformation builtinInfo = (BuiltinRuleInformation) ruleInfo;
 
             if (builtinInfo.builtinIfInsts == null) {
-                builtinInfo.builtinIfInsts = ImmutableSLList.nil();
+                builtinInfo.builtinIfInsts = new HashSet<>();
             }
             builtinInfo.currIfInstFormula = 0;
             builtinInfo.currIfInstPosInTerm = PosInTerm.getTopLevel();
@@ -301,8 +303,7 @@ public class IntermediatePresentationProofFileParser implements IProofFileParser
 
         case ASSUMES_INST_BUILT_IN: // ifInst (for built in rules)
             BuiltinRuleInformation builtinInfo = (BuiltinRuleInformation) ruleInfo;
-            builtinInfo.builtinIfInsts =
-                builtinInfo.builtinIfInsts.append(new Pair<>(
+            builtinInfo.builtinIfInsts.add(new Pair<>(
                     builtinInfo.currIfInstFormula, builtinInfo.currIfInstPosInTerm));
             break;
 
@@ -376,7 +377,7 @@ public class IntermediatePresentationProofFileParser implements IProofFileParser
             result = new BuiltInAppIntermediate(builtinInfo.currRuleName,
                 new Pair<>(builtinInfo.currFormula, builtinInfo.currPosInTerm),
                 builtinInfo.currContract, builtinInfo.currContractModality,
-                builtinInfo.builtinIfInsts, builtinInfo.currNewNames);
+                builtinInfo.builtinIfInsts != null ? ImmutableList.fromList(builtinInfo.builtinIfInsts) : null, builtinInfo.currNewNames);
         }
 
         return result;
@@ -446,7 +447,7 @@ public class IntermediatePresentationProofFileParser implements IProofFileParser
      */
     private static class BuiltinRuleInformation extends RuleInformation {
         /* + Built-In Formula Information */
-        protected ImmutableList<Pair<Integer, PosInTerm>> builtinIfInsts;
+        protected Set<Pair<Integer, PosInTerm>> builtinIfInsts;
         protected int currIfInstFormula;
         protected PosInTerm currIfInstPosInTerm;
         /* > Method Contract */

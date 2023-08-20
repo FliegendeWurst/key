@@ -2,6 +2,7 @@ package de.uka.ilkd.key.gui.nodeviews;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -173,6 +174,9 @@ public abstract class SequentView extends JEditorPane {
 
     public final void setFont() {
         Font myFont = UIManager.getFont(Config.KEY_FONT_SEQUENT_VIEW);
+        if (getFont() == myFont) {
+            return;
+        }
         if (myFont != null) {
             putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
             setFont(myFont);
@@ -947,10 +951,7 @@ public abstract class SequentView extends JEditorPane {
         var highlight = System.nanoTime();
         setTextCache.get(highlighted);
         var setText = System.nanoTime();
-        LOGGER.trace("updateSequent " + (node != null ? node.serialNr() : -1) + ": print "
-            + (print - start) / 1e6
-            + "ms, highlight " + (highlight - print) / 1e6 + "ms, setText "
-            + (setText - highlight) / 1e6 + "ms");
+        LOGGER.info("updateSequent {}: print {}ms, highlight {}ms, setText {}ms", node != null ? node.serialNr() : -1, (print - start) / 1e6, (highlight - print) / 1e6, (setText - highlight) / 1e6);
     }
 
     public void setFilter(SequentPrintFilter sequentPrintFilter, boolean forceUpdate) {

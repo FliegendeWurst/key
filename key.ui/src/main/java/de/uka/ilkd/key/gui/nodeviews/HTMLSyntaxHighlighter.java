@@ -192,7 +192,7 @@ public class HTMLSyntaxHighlighter {
             // We use div-s instead of br-s because this preserves the line
             // breaks in JEditorPane's plain text.
             return concat("<div>", addSyntaxHighlighting(toHTML(plainTextString), programVariables)
-                    .replaceAll("<br>", "</div><div>"),
+                    .replace("<br>", "</div><div>"),
                 "</div>");
         } catch (Throwable t) {
             // Syntax highlighting should never break the system;
@@ -213,6 +213,10 @@ public class HTMLSyntaxHighlighter {
      */
     private static String addSyntaxHighlighting(String htmlString,
             Iterable<? extends IProgramVariable> programVariables) {
+
+        if (htmlString.length() > 100000) {
+            return htmlString;
+        }
 
         htmlString = PROP_LOGIC_KEYWORDS_PATTERN.matcher(htmlString)
                 .replaceAll(PROP_LOGIC_KEYWORDS_REPLACEMENT);

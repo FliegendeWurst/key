@@ -131,6 +131,8 @@ public class Statistics {
         }
 
         final String nodeString = EnhancedStringBuffer.format(stat.nodes).toString();
+        summaryList.add(
+            new Pair<>("Steps", EnhancedStringBuffer.format(stat.totalRuleApps).toString()));
         summaryList.add(new Pair<>("Nodes", nodeString));
         summaryList.add(new Pair<>("Branches",
             EnhancedStringBuffer.format(stat.branches).toString()));
@@ -321,10 +323,9 @@ public class Statistics {
          */
         private int tmpOssCaptured(final RuleApp ruleApp) {
             int tmpOssCaptured = 0;
-            final Protocol protocol =
-                ((de.uka.ilkd.key.rule.OneStepSimplifierRuleApp) ruleApp).getProtocol();
-            if (protocol != null) {
-                tmpOssCaptured = protocol.size() - 1;
+            int l = ((de.uka.ilkd.key.rule.OneStepSimplifierRuleApp) ruleApp).getProtocolLength();
+            if (l != 0) {
+                tmpOssCaptured = l - 1;
             }
             return tmpOssCaptured;
         }

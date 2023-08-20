@@ -27,6 +27,9 @@ public final class MainFrame extends JPanel {
     private boolean showTacletInfo = false;
 
     public Component setContent(Component component) {
+        if (content == component) {
+            return content; // nothing to do
+        }
         Component oldContent = content;
         content = component;
         if (component instanceof SequentView) {
@@ -45,6 +48,10 @@ public final class MainFrame extends JPanel {
         }
 
         return oldContent;
+    }
+
+    public Component getContent() {
+        return ((SequentViewPanel) scrollPane.getViewport().getComponent(0)).getComponent(1);
     }
 
     public MainFrame(final MainWindow mainWindow, EmptySequent emptySequent) {

@@ -4,6 +4,8 @@ import java.util.Properties;
 
 
 public class GeneralSettings extends AbstractSettings {
+    public static boolean interrupted = false;
+
     /**
      * This parameter disables the possibility to prune in closed branches. It is meant as a
      * fallback solution if storing all closed goals needs too much memory or is not needed. Pruning

@@ -37,6 +37,7 @@ import de.uka.ilkd.key.prover.TaskFinishedInfo;
 import de.uka.ilkd.key.prover.TaskStartedInfo;
 import de.uka.ilkd.key.prover.impl.ApplyStrategyInfo;
 import de.uka.ilkd.key.rule.IBuiltInRuleApp;
+import de.uka.ilkd.key.settings.GeneralSettings;
 import de.uka.ilkd.key.speclang.PositionedString;
 import de.uka.ilkd.key.strategy.StrategyProperties;
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl;
@@ -75,15 +76,19 @@ public class WindowUserInterfaceControl extends AbstractMediatorUserInterfaceCon
         completions.add(new BlockContractInternalCompletion(mainWindow));
         completions.add(new BlockContractExternalCompletion(mainWindow));
         completions.add(MergeRuleCompletion.INSTANCE);
-        Signal.handle(new Signal("INT"), sig -> {
-            if (getMediator().isInAutoMode()) {
-                LOGGER.warn("Caught SIGINT, stopping automode...");
-                getMediator().getUI().getProofControl().stopAutoMode();
-            } else {
-                LOGGER.warn("Caught SIGINT, exiting...");
-                new ExitMainAction(mainWindow).exitMainWithoutInteraction();
-            }
-        });
+        try {
+            Signal.handle(new Signal("INT"), sig -> {
+                if (getMediator().isInAutoMode()) {
+                    LOGGER.warn("Caught SIGINT, stopping automode...");
+                    getMediator().getUI().getProofControl().stopAutoMode();
+                } else {
+                    LOGGER.warn("Caught SIGINT, exiting...");
+                    new ExitMainAction(mainWindow).exitMainWithoutInteraction();
+                }
+            });
+        } catch (Exception e) {
+            // the above is optional functionality and may not work on every OS
+        }
     }
 
     @Override

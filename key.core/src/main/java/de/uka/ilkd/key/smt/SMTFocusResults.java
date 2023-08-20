@@ -121,7 +121,7 @@ public final class SMTFocusResults {
         String[] lines = solver.getRawSolverOutput().split("\n");
         String lastLine = lines[lines.length - 1];
 
-        LOGGER.info("Analyzing unsat core: {}", lastLine);
+        LOGGER.debug("Analyzing unsat core: {}", lastLine);
 
         Integer[] numbers;
         if (lastLine.matches("\\(.*\\)")) {

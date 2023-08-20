@@ -70,7 +70,7 @@ public class SlicingLeftPanel extends JPanel implements TabPanel, KeYSelectionLi
      * If set to true, the panel will include information on the current usage of the Java Heap
      * and a button that calls {@link System#gc()}.
      */
-    private static final boolean ENABLE_DEBUGGING_UI = false;
+    private static final boolean ENABLE_DEBUGGING_UI = true;
 
     /**
      * KeY mediator instance.
