@@ -21,6 +21,7 @@ import java.util.prefs.Preferences;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -59,6 +60,8 @@ import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
+import de.uka.ilkd.key.prover.ProverCore;
+import de.uka.ilkd.key.rule.OneStepSimplifier;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.settings.GeneralSettings;
 import de.uka.ilkd.key.settings.ProofIndependentSettings;
@@ -234,6 +237,7 @@ public final class MainWindow extends JFrame {
     private SingleCDockable dockProofListView;
     private SingleCDockable dockSourceView;
     private SingleCDockable dockSequent;
+    private Timer updateLabel;
 
     /*
      * A function collapsing multiple SMTInvokeActions into one that starts a union of all solver
@@ -777,16 +781,52 @@ public final class MainWindow extends JFrame {
     }
 
     private void setStatusLineImmediately(String str, int max) {
+        setStatusLineImmediately(str, max, 0);
+    }
+
+    private void setStatusLineImmediately(String str, int max, int progress) {
         // statusLine.reset();
         statusLine.setStatusText(str);
         if (max > 0) {
             getStatusLine().setProgressBarMaximum(max);
+            getStatusLine().setProgress(progress);
             statusLine.setProgressPanelVisible(true);
         } else {
+            getStatusLine().setProgress(0);
             statusLine.setProgressPanelVisible(false);
         }
         statusLine.validate();
         statusLine.paintImmediately(0, 0, statusLine.getWidth(), statusLine.getHeight());
+        if (str.contains(ProverCore.PROCESSING_STRATEGY) || str.contains("Replaying proof")) {
+            if (updateLabel == null) {
+                LOGGER.info("starting label update timer");
+                updateLabel = new Timer(100, e -> {
+                    if (!MainWindow.getInstance().isActive()) {
+                        return;
+                    }
+                    if (!getMediator().isInAutoMode()) {
+                        updateLabel.stop();
+                        updateLabel = null;
+                        return;
+                    }
+                    var y = OneStepSimplifier.numAppliedRule;
+                    var x = OneStepSimplifier.lastAppliedRule;
+                    var progress2 = getStatusLine().getProgress();
+                    if (x != null) {
+                        setStatusLine(
+                                str + " (One Step Simplifier: " + y + ", " + x + ")", max,
+                                progress2);
+                    } else {
+                        setStatusLine(str, max, progress2);
+                    }
+                });
+                updateLabel.start();
+            }
+        } else if (updateLabel != null) {
+            LOGGER.info("stopping due to {}", str);
+            updateLabel.stop();
+            updateLabel = null;
+        }
     }
 
     /**
@@ -795,6 +835,10 @@ public final class MainWindow extends JFrame {
      */
     public void setStatusLine(final String str, final int max) {
         ThreadUtilities.invokeOnEventQueue(() -> setStatusLineImmediately(str, max));
+    }
+
+    public void setStatusLine(final String str, final int max, final int progress) {
+        ThreadUtilities.invokeOnEventQueue(() -> setStatusLineImmediately(str, max, progress));
     }
 
     /**

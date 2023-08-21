@@ -40,21 +40,23 @@ class MainStatusLine extends JPanel {
         setFont(font);
         setOpaque(false);
 
-        lblStatusText.setText(initialText);
-        lblStatusText.setIcon(IconFactory.keyLogo(35, 20));
-        lblStatusText.setBorder(BorderFactory.createCompoundBorder(lblStatusText.getBorder(),
-            BorderFactory.createEmptyBorder(0, 10, 0, 0)));
-
-        // add(Box.createHorizontalGlue());
-        add(lblStatusText);
-        add(Box.createHorizontalStrut(50));
+        JLabel iconLabel = new JLabel();
+        iconLabel.setIcon(IconFactory.keyLogo(35, 20));
+        iconLabel.setBorder(BorderFactory.createCompoundBorder(iconLabel.getBorder(),
+            BorderFactory.createEmptyBorder(0, 10, 0, 10)));
 
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
         progressBar.setMaximumSize(new Dimension(100, Short.MAX_VALUE));
         progressBar.setEnabled(true);
         progressBar.setVisible(false);
+        lblStatusText.setText(initialText);
+
+        add(iconLabel);
         add(progressBar);
+        add(Box.createHorizontalStrut(10));
+        add(lblStatusText);
+        add(Box.createHorizontalStrut(50));
 
         add(Box.createHorizontalGlue());
         JToolBar bar = new JToolBar();
@@ -73,6 +75,7 @@ class MainStatusLine extends JPanel {
      * Make the status line display a standard message
      */
     public void reset() {
+        setProgress(0);
         setProgressPanelVisible(false);
         lblStatusText.setText("");
     }
@@ -82,14 +85,24 @@ class MainStatusLine extends JPanel {
      * <code>ProgressBar</code>)
      */
     public void setProgressBarMaximum(int value) {
-        progressBar.setMaximum(value);
+        if (progressBar.getMaximum() != value) {
+            progressBar.setMaximum(value);
+        }
     }
 
     /**
      * Set the value the progress bar currently displays
      */
     public void setProgress(final int value) {
-        SwingUtilities.invokeLater(() -> progressBar.setValue(value));
+        if (SwingUtilities.isEventDispatchThread()) {
+            progressBar.setValue(value);
+        } else {
+            SwingUtilities.invokeLater(() -> progressBar.setValue(value));
+        }
+    }
+
+    public int getProgress() {
+        return progressBar.getValue();
     }
 
     /**
@@ -97,20 +110,6 @@ class MainStatusLine extends JPanel {
      */
     public void setProgressPanelVisible(boolean visible) {
         progressBar.setVisible(visible);
-        if (visible) {
-            setProgress(0);
-
-            /*
-             * To avoid later resizing of the status line, add an // invisible element with the same
-             * height as the abort button if (!phantomBoxAdded) { phantomBoxAdded = true;
-             * ComponentListener phantomAdder = new ComponentAdapter() {
-             *
-             * @Override public void componentResized(ComponentEvent e) {
-             * progressPanel.removeComponentListener(this); Dimension s = progressPanel.getSize(); s
-             * = new Dimension(0, (int) s.getHeight()); add(Box.createRigidArea(s)); } };
-             * progressPanel.addComponentListener(phantomAdder); }
-             */
-        }
     }
 
     /**
