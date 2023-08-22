@@ -8,6 +8,7 @@ import java.awt.dnd.Autoscroll;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.dnd.DropTarget;
+import java.lang.ref.WeakReference;
 import java.util.EventObject;
 import java.util.LinkedList;
 import javax.swing.*;
@@ -17,6 +18,7 @@ import de.uka.ilkd.key.gui.ApplyTacletDialog;
 import de.uka.ilkd.key.gui.GUIListener;
 import de.uka.ilkd.key.gui.MainWindow;
 import de.uka.ilkd.key.gui.colors.ColorSettings;
+import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.InitialPositionTable;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.pp.Range;
@@ -67,6 +69,7 @@ public final class CurrentGoalView extends SequentView implements Autoscroll {
     private static final Insets autoScrollSensitiveRegion = new Insets(20, 20, 20, 20);
 
     private final LinkedList<Object> updateHighlights;
+    private WeakReference<Sequent> lastPrintedSequent = new WeakReference<>(null);
 
     /**
      * creates a viewer for a sequent
@@ -210,7 +213,11 @@ public final class CurrentGoalView extends SequentView implements Autoscroll {
         setLineWidth(computeLineWidth());
 
         if (getLogicPrinter() != null) {
-            updateSequent(getMainWindow().getMediator().getSelectedNode());
+            var seq = getMediator().getSelectionModel().getSelectedSequent();
+            if (seq != lastPrintedSequent.get()) {
+                updateSequent(getMainWindow().getMediator().getSelectedNode());
+                lastPrintedSequent = new WeakReference<>(seq);
+            }
         }
 
         updateUpdateHighlights();
@@ -219,7 +226,7 @@ public final class CurrentGoalView extends SequentView implements Autoscroll {
         addMouseListener(listener);
         updateHidingProperty();
         var after = System.nanoTime();
-        LOGGER.trace("Total printSequentImmediately took " + (after - time) / 1e6 + "ms");
+        LOGGER.trace("Total printSequentImmediately took {} ms", (after - time) / 1e6);
     }
 
     // last highlighted caret position
@@ -307,6 +314,11 @@ public final class CurrentGoalView extends SequentView implements Autoscroll {
     @Override
     public String getTitle() {
         return "Current Goal";
+    }
+
+    @Override
+    public void clearPrintCache() {
+        lastPrintedSequent.clear();
     }
 
 }

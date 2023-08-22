@@ -420,6 +420,9 @@ public abstract class SequentView extends JEditorPane {
         cursorPosition =
             (cursorPosition >= seqText.length() ? seqText.length() - 1 : cursorPosition);
         cursorPosition = Math.max(cursorPosition, 0);
+        if (cursorPosition == 0 && seqText.length() == 0) {
+            return 0;
+        }
         int previousCharacterWidth =
             getFontMetrics(getFont()).charWidth(seqText.charAt(cursorPosition));
         int characterIndex =
@@ -1021,6 +1024,8 @@ public abstract class SequentView extends JEditorPane {
     public boolean isMainSequentView() {
         return true;
     }
+
+    public void clearPrintCache() {}
 
     /**
      * Utility class consisting of a pair of the PosInOccurrence of a term, and its age. Used for

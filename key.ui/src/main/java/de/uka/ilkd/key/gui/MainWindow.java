@@ -822,8 +822,8 @@ public final class MainWindow extends JFrame {
                     var progress2 = getStatusLine().getProgress();
                     if (x != null) {
                         setStatusLine(
-                                str + " (One Step Simplifier: " + y + ", " + x + ")", max,
-                                progress2);
+                            str + " (One Step Simplifier: " + y + ", " + x + ")", max,
+                            progress2);
                     } else {
                         setStatusLine(str, max, progress2);
                     }

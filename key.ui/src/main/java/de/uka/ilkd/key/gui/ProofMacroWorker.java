@@ -5,6 +5,7 @@ package de.uka.ilkd.key.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.*;
 
 import de.uka.ilkd.key.control.InteractionListener;
@@ -62,6 +63,7 @@ public class ProofMacroWorker extends SwingWorker<ProofMacroFinishedInfo, Void>
      * thrown
      */
     private ProofMacroFinishedInfo info;
+    private AtomicBoolean done = new AtomicBoolean(false);
     /**
      * The thrown exception leading to cancellation of the task
      */
@@ -88,22 +90,26 @@ public class ProofMacroWorker extends SwingWorker<ProofMacroFinishedInfo, Void>
 
     @Override
     protected ProofMacroFinishedInfo doInBackground() {
+        Thread.currentThread().setName("Proof Macro Worker");
         final ProverTaskListener ptl = mediator.getUI();
         Proof selectedProof = node.proof();
-        info = ProofMacroFinishedInfo.getDefaultInfo(macro, selectedProof);
-        ptl.taskStarted(
-            new DefaultTaskStartedInfo(TaskStartedInfo.TaskKind.Macro, macro.getName(), 0));
         try {
+            info = ProofMacroFinishedInfo.getDefaultInfo(macro, selectedProof);
+            ptl.taskStarted(
+                new DefaultTaskStartedInfo(TaskStartedInfo.TaskKind.Macro, macro.getName(), 0));
             synchronized (macro) {
                 info = macro.applyTo(mediator.getUI(), node, posInOcc, ptl);
             }
+            done.set(true);
         } catch (final InterruptedException exception) {
             LOGGER.debug("Proof macro has been interrupted:", exception);
             info = new ProofMacroFinishedInfo(macro, selectedProof, true);
             this.exception = exception;
+            done.set(true);
         } catch (final Exception exception) {
             // This should actually never happen.
             this.exception = exception;
+            done.set(true);
         }
 
         return info;
@@ -116,6 +122,19 @@ public class ProofMacroWorker extends SwingWorker<ProofMacroFinishedInfo, Void>
 
     @Override
     protected void done() {
+        if (!done.get()) {
+            // finish the worker on a new thread to avoid stalling the UI thread
+            new Thread(() -> {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    this.done();
+                    return;
+                }
+                SwingUtilities.invokeLater(this::done);
+            }).start();
+            return;
+        }
         synchronized (macro) {
             mediator.removeInterruptedListener(this);
             if (!isCancelled() && exception != null) { // user cancelled task is fine, we do not

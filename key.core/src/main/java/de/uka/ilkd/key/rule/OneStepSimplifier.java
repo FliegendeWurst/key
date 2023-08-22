@@ -28,6 +28,7 @@ import de.uka.ilkd.key.logic.label.TermLabelState;
 import de.uka.ilkd.key.logic.op.FormulaSV;
 import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.logic.op.SchemaVariableFactory;
 import de.uka.ilkd.key.logic.op.Transformer;
 import de.uka.ilkd.key.logic.op.UpdateApplication;
@@ -288,6 +289,9 @@ public final class OneStepSimplifier implements BuiltInRule {
     private SequentFormula simplifySub(Goal goal, Services services, PosInOccurrence pos,
             int indexNr, Protocol protocol, Map<TermReplacementKey, PosInOccurrence> context,
             /* out */ Set<PosInOccurrence> ifInsts, RuleApp ruleApp) {
+        if (pos.subTerm().op() instanceof Quantifier && indexNr == ruleSets.size() - 1) {
+            return null; // this ruleset does not recurse into quantifiers
+        }
         for (int i = 0, n = pos.subTerm().arity(); i < n; i++) {
             SequentFormula result =
                 simplifyPosOrSub(goal, services, pos.down(i), indexNr, protocol, context, ifInsts,
@@ -550,7 +554,8 @@ public final class OneStepSimplifier implements BuiltInRule {
         SequentFormula lastCf = null;
 
         SequentFormula result =
-                replaceKnown(services, cf, ossPIO.isInAntec(), context, ifInsts, protocol, goal, ruleApp);
+            replaceKnown(services, cf, ossPIO.isInAntec(), context, ifInsts, protocol, goal,
+                ruleApp);
         if (result != null) {
             cf = result;
             lastCf = cf;
@@ -578,7 +583,8 @@ public final class OneStepSimplifier implements BuiltInRule {
         PosInOccurrence[] ifInstsArr = ifInsts.toArray(new PosInOccurrence[0]);
         ImmutableList<PosInOccurrence> immutableIfInsts =
             ImmutableSLList.<PosInOccurrence>nil().append(ifInstsArr);
-        return new Instantiation(lastCf, protocol != null ? protocol.size() : list.size(), immutableIfInsts);
+        return new Instantiation(lastCf, protocol != null ? protocol.size() : list.size(),
+            immutableIfInsts);
     }
 
 

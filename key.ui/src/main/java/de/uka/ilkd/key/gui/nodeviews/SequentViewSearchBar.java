@@ -67,6 +67,8 @@ public class SequentViewSearchBar extends SearchBar {
         if (this.sequentView != sequentView) {
             // search always does a repaint, therefore don't force update in setFilter
             sequentView.setFilter(this.sequentView.getFilter(), false);
+            // repaint view
+            sequentView.clearPrintCache();
         }
         this.sequentView = sequentView;
         sequentView.printSequent();
