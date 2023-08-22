@@ -476,11 +476,11 @@ public abstract class Notation {
 
         public void print(Term t, LogicPrinter sp) {
             if (t.op() instanceof ProgramVariable) {
-                sp.printConstant(t.op().name().toString().replaceAll("::", "."));
+                sp.printConstant(t.op().name().toString().replace("::", "."));
             } else if (t.op() instanceof LogicVariable) {
                 sp.printConstant(t.op().name().toString());
             } else {
-                LOGGER.debug("Unknown variable type for VariableNotation: " + t.op());
+                LOGGER.debug("Unknown variable type for VariableNotation: {}", t.op());
                 sp.printConstant(t.op().name().toString());
             }
         }

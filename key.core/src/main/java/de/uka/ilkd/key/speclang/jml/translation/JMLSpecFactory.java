@@ -1223,7 +1223,7 @@ public class JMLSpecFactory {
 
         // default merge procedure is MergeByIfThenElse
         final String mergeProcStr = ctx.proc == null ? MergeByIfThenElse.instance().toString()
-                : ctx.proc.getText().replaceAll("\"", "");
+                : ctx.proc.getText().replace("\"", "");
 
         MergeProcedure mergeProc = MergeProcedure.getProcedureByName(mergeProcStr);
         if (mergeProc == null) {

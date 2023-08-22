@@ -799,9 +799,9 @@ public class OutputStreamProofSaver {
         String result = toEscape;
 
         // first escape backslash
-        result = result.replaceAll("\\\\", "\\\\\\\\");
+        result = result.replace("\\", "\\\\");
         // then escape quotation marks
-        result = result.replaceAll("\"", "\\\\\"");
+        result = result.replace("\"", "\\\"");
 
         return result;
     }
