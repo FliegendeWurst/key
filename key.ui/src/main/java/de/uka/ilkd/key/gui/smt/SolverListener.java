@@ -352,7 +352,7 @@ public class SolverListener implements SolverLauncherListener {
             public void run() {
                 refreshDialog();
             }
-        }, 0, 10);
+        }, 0, 50);
     }
 
     private void refreshDialog() {
@@ -434,12 +434,13 @@ public class SolverListener implements SolverLauncherListener {
             bar.setValue(finishedCounter);
             setProgressText(finishedCounter);
             problemProcessed[x][y] = true;
+        } else {
+            return;
         }
 
         if (problem.solver.wasInterrupted()) {
             interrupted(problem);
         } else if (problem.solver.getFinalResult().isValid() == ThreeValuedTruth.VALID) {
-
             successfullyStopped(problem, x, y);
         } else if (problem.solver.getFinalResult().isValid() == ThreeValuedTruth.FALSIFIABLE) {
 
@@ -625,17 +626,6 @@ public class SolverListener implements SolverLauncherListener {
             // remove semantics blasting proof for ce dialog
             if (counterexample && smtProof != null) {
                 smtProof.dispose();
-            }
-
-        }
-
-        @Override
-        public void additionalInformationChosen(Object obj) {
-            if (obj instanceof String) {
-                JOptionPane.showOptionDialog(progressDialog, obj, "Warning",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-            } else if (obj instanceof InternSMTProblem) {
-                showInformation((InternSMTProblem) obj);
             }
 
         }

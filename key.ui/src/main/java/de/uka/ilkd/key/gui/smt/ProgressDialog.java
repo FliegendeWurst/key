@@ -83,8 +83,6 @@ public class ProgressDialog extends JDialog {
 
         void discardButtonClicked();
 
-        void additionalInformationChosen(Object obj);
-
         void focusButtonClicked();
     }
 
@@ -92,7 +90,7 @@ public class ProgressDialog extends JDialog {
             boolean counterexample, int resolution, int progressBarMax, String[] labelTitles,
             String... titles) {
         super(MainWindow.getInstance());
-        table = new ProgressTable(resolution, listener, labelTitles);
+        table = new ProgressTable(resolution, listener);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getTableHeader().setReorderingAllowed(false);
         table.setModel(model, titles);
@@ -307,7 +305,7 @@ class ProgressTable extends JTable {
             return infoButton;
         }
 
-        ProgressPanel() {
+        private ProgressPanel() {
 
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             this.add(Box.createVerticalStrut(2));
@@ -326,6 +324,9 @@ class ProgressTable extends JTable {
         }
 
         public void setText(String text) {
+            if (getProgressBar().getString() == text) {
+                return;
+            }
             getProgressBar().setString(text);
             getProgressBar().setStringPainted(text != null && !text.isEmpty());
         }
@@ -364,25 +365,42 @@ class ProgressTable extends JTable {
 
     }
 
-
-
     private void prepareProgressPanel(ProgressPanel panel, final ProcessData data) {
         panel.setValue(data.getProgress());
         panel.setText(data.getText());
         panel.infoButton.setEnabled(data.isEditable());
         panel.progressBar.setBackground(data.getBackgroundColor());
         panel.progressBar.setForeground(data.getForegroundColor());
-        panel.progressBar.setUI(new BasicProgressBarUI() {
+        if (panel.progressBar.getUI()instanceof ColoredProgressbarUI colorUi) {
+            colorUi.updateData(data);
+        } else {
+            panel.progressBar.setUI(new ColoredProgressbarUI(data));
+        }
+    }
 
+    private static final class ColoredProgressbarUI extends BasicProgressBarUI {
+        /**
+         * Text color is based on this data object.
+         */
+        private ProcessData data;
 
-            @Override
-            protected Color getSelectionForeground() {
-                return data.getSelectedTextColor();
-            }
+        private ColoredProgressbarUI(ProcessData data) {
+            this.data = data;
+        }
 
-            protected Color getSelectionBackground() { return data.getTextColor(); }
-        });
+        private void updateData(ProcessData data) {
+            this.data = data;
+        }
 
+        @Override
+        protected Color getSelectionForeground() {
+            return data.getSelectedTextColor();
+        }
+
+        @Override
+        protected Color getSelectionBackground() {
+            return data.getTextColor();
+        }
     }
 
     private final TableCellRenderer renderer =
@@ -398,7 +416,7 @@ class ProgressTable extends JTable {
 
 
 
-    public ProgressTable(int resolution, ProgressTableListener listener, String... titles) {
+    public ProgressTable(int resolution, ProgressTableListener listener) {
         this.setDefaultRenderer(ProgressModel.ProcessColumn.class, renderer);
         this.setDefaultEditor(ProgressModel.ProcessColumn.class, editor);
         init(getProgressPanelEditor(), this.getFont(), resolution, listener);
@@ -435,14 +453,6 @@ class ProgressTable extends JTable {
 
 
     }
-
-    // @Override
-    // public Dimension getPreferredSize() {
-    // Dimension dim = new Dimension(super.getPreferredSize());
-    // dim.height = Math.min(NUMBER_OF_VISIBLE_ROWS *
-    // (progressPanelRenderer.getPreferredSize().height+5), dim.height);
-    // return dim;
-    // }
 
     @Override
     public Dimension getPreferredScrollableViewportSize() {
