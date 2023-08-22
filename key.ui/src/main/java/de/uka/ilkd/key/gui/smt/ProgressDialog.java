@@ -52,6 +52,14 @@ public class ProgressDialog extends JDialog {
      */
     private JScrollPane scrollPane;
     /**
+     * Whether the user scrolled {@link #scrollPane}. Disables auto-scroll.
+     */
+    private boolean userScrolled = false;
+    /**
+     * Target value of the auto-scroll mechanism for {@link #scrollPane}.
+     */
+    private int targetScroll = 0;
+    /**
      * Overall progress of the SMT solvers (# goals started / total goals).
      */
     private JProgressBar progressBar;
@@ -63,15 +71,18 @@ public class ProgressDialog extends JDialog {
      * @param row the row
      */
     public void scrollTo(int row) {
+        if (userScrolled) {
+            return;
+        }
         row -= ProgressTable.NUMBER_OF_VISIBLE_ROWS - 2;
         if (row < 0) {
             row = 0;
         }
         int ideal = table.getRowHeight() * row;
         SwingUtilities.invokeLater(() -> {
-            int target = Math.min(ideal, scrollPane.getVerticalScrollBar().getMaximum());
-            if (scrollPane.getVerticalScrollBar().getValue() != target) {
-                scrollPane.getVerticalScrollBar().setValue(target);
+            targetScroll = Math.min(ideal, scrollPane.getVerticalScrollBar().getMaximum());
+            if (scrollPane.getVerticalScrollBar().getValue() != targetScroll) {
+                scrollPane.getVerticalScrollBar().setValue(targetScroll);
             }
         });
     }
@@ -208,6 +219,11 @@ public class ProgressDialog extends JDialog {
     private JScrollPane getScrollPane() {
         if (scrollPane == null) {
             scrollPane = SwingUtil.createScrollPane(table);
+            scrollPane.getVerticalScrollBar().addAdjustmentListener(x -> {
+                if (x.getValue() != targetScroll) {
+                    userScrolled = true;
+                }
+            });
         }
         return scrollPane;
     }
