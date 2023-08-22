@@ -44,6 +44,17 @@ import de.uka.ilkd.key.smt.solvertypes.SolverTypes;
 import de.uka.ilkd.key.taclettranslation.assumptions.TacletSetTranslation;
 
 public class SolverListener implements SolverLauncherListener {
+    private static final ColorSettings.ColorProperty RED =
+        ColorSettings.define("[solverListener]red", "", new Color(180, 43, 43));
+    private static final ColorSettings.ColorProperty GREEN =
+        ColorSettings.define("[solverListener]green", "", new Color(43, 180, 43));
+    private static final int RESOLUTION = 1000;
+    /**
+     * Number of milliseconds between dialog updates.
+     */
+    private static final int REFRESH_DELAY = 50;
+    private static int FILE_ID = 0;
+
     private ProgressDialog progressDialog;
     private ProgressModel progressModel;
     // Every intern SMT problem refers to one solver
@@ -55,15 +66,6 @@ public class SolverListener implements SolverLauncherListener {
     private final Timer timer = new Timer();
     private final DefaultSMTSettings settings;
     private final Proof smtProof;
-    private final static ColorSettings.ColorProperty RED =
-        ColorSettings.define("[solverListener]red", "", new Color(180, 43, 43));
-
-    private final static ColorSettings.ColorProperty GREEN =
-        ColorSettings.define("[solverListener]green", "", new Color(43, 180, 43));
-
-    private static int FILE_ID = 0;
-
-    private static final int RESOLUTION = 1000;
 
     public static class InternSMTProblem {
         private final int problemIndex;
@@ -183,7 +185,13 @@ public class SolverListener implements SolverLauncherListener {
 
         void stopTime() {
             if (!stopped) {
-                timeToSolve = System.currentTimeMillis() - timeToSolve;
+                if (timeToSolve != 0) {
+                    timeToSolve = System.currentTimeMillis() - timeToSolve;
+                } else {
+                    // if the solver finished before the first refresh, startTime() was not called
+                    started = true;
+                    // leave timeToSolve at 0
+                }
                 stopped = true;
             }
         }
@@ -360,7 +368,7 @@ public class SolverListener implements SolverLauncherListener {
             public void run() {
                 refreshDialog();
             }
-        }, 0, 50);
+        }, 0, REFRESH_DELAY);
     }
 
     private void refreshDialog() {
