@@ -69,6 +69,7 @@ public class SequentViewSearchBar extends SearchBar {
             sequentView.setFilter(this.sequentView.getFilter(), false);
         }
         this.sequentView = sequentView;
+        sequentView.printSequent();
         search();
     }
 
@@ -178,9 +179,7 @@ public class SequentViewSearchBar extends SearchBar {
             searchSequentPrintFilter.setSearchString(searchField.getText());
         }
 
-        sequentView.printSequent();
-
-        if (sequentView == null || sequentView.getText() == null || search.equals("")
+        if (sequentView.getText() == null || search.equals("")
                 || !this.isVisible()) {
             return true;
         }

@@ -1190,7 +1190,6 @@ public final class MainWindow extends JFrame {
             addToProofList(plist);
             setUpNewProof(plist.getFirstProof());
             disableCurrentGoalView = false;
-            updateSequentView();
         };
         ThreadUtilities.invokeOnEventQueue(guiUpdater);
     }
@@ -1780,7 +1779,6 @@ public final class MainWindow extends JFrame {
             LOGGER.debug("Automode stopped");
             unfreezeExceptAutoModeButton();
             disableCurrentGoalView = false;
-            updateSequentView();
             getMediator().addKeYSelectionListenerChecked(proofListener);
         }
 
