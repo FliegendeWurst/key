@@ -58,6 +58,25 @@ public class ProgressDialog extends JDialog {
     private final ProgressDialogListener listener;
 
     /**
+     * Scroll to the specified row in the progress table.
+     *
+     * @param row the row
+     */
+    public void scrollTo(int row) {
+        row -= ProgressTable.NUMBER_OF_VISIBLE_ROWS - 2;
+        if (row < 0) {
+            row = 0;
+        }
+        int ideal = table.getRowHeight() * row;
+        SwingUtilities.invokeLater(() -> {
+            int target = Math.min(ideal, scrollPane.getVerticalScrollBar().getMaximum());
+            if (scrollPane.getVerticalScrollBar().getValue() != target) {
+                scrollPane.getVerticalScrollBar().setValue(target);
+            }
+        });
+    }
+
+    /**
      * Current state of the dialog.
      */
     public enum Modus {
@@ -262,7 +281,7 @@ public class ProgressDialog extends JDialog {
 class ProgressTable extends JTable {
 
     private static final long serialVersionUID = 1L;
-    private static final int NUMBER_OF_VISIBLE_ROWS = 8;
+    public static final int NUMBER_OF_VISIBLE_ROWS = 8;
 
     public interface ProgressTableListener {
         void infoButtonClicked(int column, int row);
@@ -371,8 +390,8 @@ class ProgressTable extends JTable {
         panel.infoButton.setEnabled(data.isEditable());
         panel.progressBar.setBackground(data.getBackgroundColor());
         panel.progressBar.setForeground(data.getForegroundColor());
-        if (panel.progressBar.getUI()instanceof ColoredProgressbarUI colorUi) {
-            colorUi.updateData(data);
+        if (panel.progressBar.getUI() instanceof ColoredProgressbarUI) {
+            ((ColoredProgressbarUI) panel.getProgressBar().getUI()).updateData(data);
         } else {
             panel.progressBar.setUI(new ColoredProgressbarUI(data));
         }

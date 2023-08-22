@@ -356,8 +356,17 @@ public class SolverListener implements SolverLauncherListener {
     }
 
     private void refreshDialog() {
+        int i = 0;
+        int last = 0;
         for (InternSMTProblem problem : problems) {
             refreshProgessOfProblem(problem);
+            if (problem.running) {
+                last = i;
+            }
+            i++;
+        }
+        if (last != 0) {
+            progressDialog.scrollTo(last);
         }
     }
 
