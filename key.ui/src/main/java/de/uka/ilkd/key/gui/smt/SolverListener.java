@@ -66,13 +66,21 @@ public class SolverListener implements SolverLauncherListener {
     private static final int RESOLUTION = 1000;
 
     public static class InternSMTProblem {
-        final int problemIndex;
-        final int solverIndex;
-        final SMTSolver solver;
-        final SMTProblem problem;
-        final LinkedList<Information> information = new LinkedList<>();
+        private final int problemIndex;
+        private final int solverIndex;
+        private final SMTSolver solver;
+        private final SMTProblem problem;
+        private final LinkedList<Information> information = new LinkedList<>();
+        /**
+         * Whether work on the SMT problem is done.
+         * This means the solver is done or was terminated.
+         */
         private boolean stopped = false;
-        private boolean running = false;
+        /**
+         * Whether work on the SMT problem has started.
+         * The solver may have finished already if this is set to true.
+         */
+        private boolean started = false;
 
         private long timeToSolve;
 
@@ -167,9 +175,9 @@ public class SolverListener implements SolverLauncherListener {
         }
 
         void startTime() {
-            if (!running) {
+            if (!started) {
                 timeToSolve = System.currentTimeMillis();
-                running = true;
+                started = true;
             }
         }
 
@@ -360,7 +368,7 @@ public class SolverListener implements SolverLauncherListener {
         int last = 0;
         for (InternSMTProblem problem : problems) {
             refreshProgessOfProblem(problem);
-            if (problem.running) {
+            if (problem.started && !problem.stopped) {
                 last = i;
             }
             i++;
