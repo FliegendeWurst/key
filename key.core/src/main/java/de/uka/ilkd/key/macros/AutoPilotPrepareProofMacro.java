@@ -18,7 +18,7 @@ import de.uka.ilkd.key.strategy.*;
 
 public class AutoPilotPrepareProofMacro extends StrategyProofMacro {
     private static final Set<String> ADMITTED_RULES =
-        Set.of(new String[] { "orRight", "impRight", "close", "andRight" });
+        Set.of(new String[] { "orRight", "impRight", "close", "andRight", "ifthenelse_split" });
     private static final Set<String> ADMITTED_RULE_SETS =
         Set.of(new String[] { "update_elim", "update_join" });
 

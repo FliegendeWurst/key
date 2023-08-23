@@ -537,18 +537,7 @@ public final class OneStepSimplifier implements BuiltInRule {
         final Map<TermReplacementKey, PosInOccurrence> context =
             new LinkedHashMap<>();
         SequentFormula cf = ossPIO.sequentFormula();
-        for (SequentFormula ante : seq.antecedent()) {
-            if (!ante.equals(cf) && ante.formula().op() != Junctor.TRUE) {
-                context.put(new TermReplacementKey(ante.formula()),
-                    new PosInOccurrence(ante, PosInTerm.getTopLevel(), true));
-            }
-        }
-        for (SequentFormula succ : seq.succedent()) {
-            if (!succ.equals(cf) && succ.formula().op() != Junctor.FALSE) {
-                context.put(new TermReplacementKey(succ.formula()),
-                    new PosInOccurrence(succ, PosInTerm.getTopLevel(), false));
-            }
-        }
+        createContext(cf, context, seq);
         final Set<PosInOccurrence> ifInsts = new HashSet<>();
 
         SequentFormula lastCf = null;
@@ -592,19 +581,45 @@ public final class OneStepSimplifier implements BuiltInRule {
      * Tells whether the passed formula can be simplified
      */
     private synchronized boolean applicableTo(Services services, SequentFormula cf,
-            boolean inAntecedent, Goal goal, RuleApp ruleApp) {
+            boolean inAntecedent, Goal goal) {
         final Boolean b = applicabilityCache.get(cf);
         if (b != null) {
             return b;
         } else {
             // try one simplification step without replace-known
             applicableCheck = true;
-            final SequentFormula simplifiedCf = simplifyConstrainedFormula(services, cf,
-                inAntecedent, null, null, null, goal, ruleApp);
+            SequentFormula simplifiedCf = simplifyConstrainedFormula(services, cf,
+                inAntecedent, null, null, null, goal, null);
+            /*
+             * if (simplifiedCf == null || simplifiedCf.equals(cf)) {
+             * final Map<TermReplacementKey, PosInOccurrence> context =
+             * new LinkedHashMap<>();
+             * Sequent seq = goal.sequent();
+             * createContext(cf, context, seq);
+             * simplifiedCf = replaceKnown(services, cf, inAntecedent, new HashMap<>(), new
+             * HashSet<>(), null, goal, null);
+             * }
+             */
             applicableCheck = false;
             final boolean result = simplifiedCf != null && !simplifiedCf.equals(cf);
             applicabilityCache.put(cf, result);
             return result;
+        }
+    }
+
+    private static void createContext(SequentFormula cf,
+            Map<TermReplacementKey, PosInOccurrence> context, Sequent seq) {
+        for (SequentFormula ante : seq.antecedent()) {
+            if (!ante.equals(cf) && ante.formula().op() != Junctor.TRUE) {
+                context.put(new TermReplacementKey(ante.formula()),
+                    new PosInOccurrence(ante, PosInTerm.getTopLevel(), true));
+            }
+        }
+        for (SequentFormula succ : seq.succedent()) {
+            if (!succ.equals(cf) && succ.formula().op() != Junctor.FALSE) {
+                context.put(new TermReplacementKey(succ.formula()),
+                    new PosInOccurrence(succ, PosInTerm.getTopLevel(), false));
+            }
         }
     }
 
@@ -665,8 +680,8 @@ public final class OneStepSimplifier implements BuiltInRule {
         }
 
         // applicable to the formula?
-        return applicableTo(goal.proof().getServices(), pio.sequentFormula(), pio.isInAntec(), goal,
-            null);
+        return applicableTo(goal.proof().getServices(), pio.sequentFormula(), pio.isInAntec(),
+            goal);
     }
 
     @Nonnull
