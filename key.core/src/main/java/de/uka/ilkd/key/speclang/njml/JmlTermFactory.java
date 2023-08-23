@@ -1208,7 +1208,14 @@ public final class JmlTermFactory {
         // weigl 2021-07-20: Handling of typed parameter in functions,
         // e.g, \dl_seqGet is resolved to any::seqGet.
         if (symbol == null) {
-            String typedFunName = "::" + functName;
+            int doubleU = functName.indexOf("__");
+            String typedFunName;
+            if (doubleU != -1) {
+                String[] parts = functName.split("__");
+                typedFunName = parts[1] + "::" + parts[0];
+            } else {
+                typedFunName = "::" + functName;
+            }
             Optional<String> altFunc =
                 funcs.allElements().stream()
                         .map(it -> it.name().toString())
