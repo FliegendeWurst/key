@@ -1,6 +1,22 @@
+# move subprojects to top level
+f094a9e761b678cbaeef0f6fbb39d9be832584b3
+2287e7644fdc55e15c7b1fdf9ad728896f125d27
 # commit with automatic reformatting for Java files
 92ef20754111bce673603debf9934ae98816a70f
 # commit with automatic reformatting for .key files
 b1ed8d6bc836ea40f357a839707d41fbb04ed6e2
 # commit with manual formatting corrections
 a9fcedc6c8d96f2480549254a307b3fbe31f04bd
+# formatting
+2ff80bcb6839ea362af8eb7b059bea4cf6d452a2
+# Java 17 trivial refactorings
+e31f0caa110a4ad7974bbda20d05d006089f9783
+ebc4057849d52d4159b59430c58cb40b99293817
+# license headers
+a30d07dbb07be9d9b5d608b530da20c25cdd57d8
+f7c9c9040484b5f135179b5c7296c1b0c3e27882
+9bced370350cee6e4c83982f0bc22c96f560fc2e
+43f7a6e8db0f02a536456d20f90695aa235313f6
+e1676cf9306aac727c13d8398617ba97fbb82ed2
+3a823f0b40314dd22fbf4cbebc79dd64efc70699
+04e360490088c5b844c8d91b35f755247c8cb4aa
