@@ -61,7 +61,7 @@ public final class OneStepSimplifier implements BuiltInRule {
      */
     public static boolean disableOSSRestriction = false;
     public static boolean cycleCheck = false;
-    public static boolean keepProtocol = true;
+    public static boolean keepProtocol = false;
     public static volatile String lastAppliedRule = null;
     public static volatile int numAppliedRule = 0;
 
