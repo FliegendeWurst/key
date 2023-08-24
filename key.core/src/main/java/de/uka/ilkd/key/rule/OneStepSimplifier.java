@@ -329,7 +329,7 @@ public final class OneStepSimplifier implements BuiltInRule {
                 }
                 var p = new PosInOccurrence(result, pos.posInTerm(), pos.isInAntec());
                 if (!p.subTermExists()) {
-                    break;
+                    return result;
                 }
                 var result2 =
                     simplifySub(goal, services, p, indexNr, protocol, context, ifInsts, ruleApp);
@@ -344,6 +344,14 @@ public final class OneStepSimplifier implements BuiltInRule {
             if (p.subTermExists()) {
                 var result2 = simplifyPos(goal, services, p, indexNr, protocol);
                 if (result2 != null) {
+                    if (!applicableCheck) {
+                        var result3 =
+                            replaceKnownHelper(context, result2.formula(), pos.isInAntec(),
+                                ifInsts, protocol, services, goal, ruleApp, pos.posInTerm());
+                        if (result3 != null) {
+                            result2 = new SequentFormula(result3);
+                        }
+                    }
                     result = result2;
                 }
             }
@@ -357,7 +365,7 @@ public final class OneStepSimplifier implements BuiltInRule {
                 }
                 var p = new PosInOccurrence(result, pos.posInTerm(), pos.isInAntec());
                 if (!p.subTermExists()) {
-                    break;
+                    return result;
                 }
                 var result2 = simplifyPos(goal, services, p, indexNr, protocol);
                 if (result2 != null) {
@@ -372,6 +380,14 @@ public final class OneStepSimplifier implements BuiltInRule {
                 var result2 =
                     simplifySub(goal, services, p, indexNr, protocol, context, ifInsts, ruleApp);
                 if (result2 != null) {
+                    if (!applicableCheck) {
+                        var result3 =
+                            replaceKnownHelper(context, result2.formula(), pos.isInAntec(),
+                                ifInsts, protocol, services, goal, ruleApp, pos.posInTerm());
+                        if (result3 != null) {
+                            result2 = new SequentFormula(result3);
+                        }
+                    }
                     result = result2;
                 }
             }
