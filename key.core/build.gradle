@@ -91,7 +91,7 @@ task generateSolverPropsList {
     def pack = "de/uka/ilkd/key/smt/solvertypes"
     def resourcesDir = "${project.projectDir}/src/main/resources"
     def outputDir = resourcesDir // in the future that should be "${project.buildDir}/resources/main"
-    // ${project.buildDir}
+    inputs.dir "$outputDir/$pack/"
     doLast {
         def list = []
         def dir = new File("$outputDir/$pack/")
@@ -101,14 +101,12 @@ task generateSolverPropsList {
             }
         })
         list.sort()
-        if (!file("$outputDir/$pack/solvers.txt").exists()) {
-            String files = ''
-            for (String propsFile : list) {
-                files += propsFile + System.lineSeparator()
-            }
-            new File("$outputDir/$pack/solvers.txt").withWriter { listSolvers ->
-                listSolvers.write files
-            }
+        String files = ''
+        for (String propsFile : list) {
+            files += propsFile + System.lineSeparator()
+        }
+        new File("$outputDir/$pack/solvers.txt").withWriter { listSolvers ->
+            listSolvers.write files
         }
     }
 }
