@@ -72,9 +72,8 @@ public class ProofSMTApplyUserAction extends UserAction {
             if (unsatCore != null) {
                 app = SMTRuleApp.RULE.createApp(problem.getSolver().name(), unsatCore);
             } else {
-                app = SMTRuleApp.RULE.createApp(problem.getSolver().name());
+                app = SMTRuleApp.RULE.createApp(problem.getSolver().name()).tryToInstantiate(goal);
             }
-            app.tryToInstantiate(goal);
             goal.apply(app);
         }
     }
