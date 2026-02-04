@@ -405,6 +405,7 @@ public class ProofCollections {
         g.provable("standard_key/unicode_test.key");
         g.provable("heap/strictlyModular/mayExpand.key");
         g.notprovable("heap/strictlyModular/modularOnly.key");
+        g.notprovable("standard_key/GhostSetInLoop/set_ghost.key");
 
 
         g = c.group("SmansEtAl");
@@ -941,6 +942,9 @@ public class ProofCollections {
 
         // There are two possible candidates to instantiate the assumes sequent.
         g.notloadable("proofLoadRepair/insufficient-manipulated.proof");
+
+        // SuccTaclet is applied at a non-top-level position
+        g.notloadable("proofLoadRepair/if.key.proof");
 
         // Verify that taclet instantiations read from proof files are checked
         // for correct polarity (Issue //1716).
